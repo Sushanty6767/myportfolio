@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sushant Chaturvedi | Portfolio</title>
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #030305;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0c0;
+            --accent: #00e5ff; /* Cyan for Sci-Fi look */
+            --accent-secondary: #7000ff; /* Deep Purple */
+            --accent-glow: rgba(0, 229, 255, 0.4);
+            --card-bg: rgba(10, 10, 25, 0.6);
+            --card-border: rgba(0, 229, 255, 0.15);
+            --glass: blur(12px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Canvas Background --- */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            /* subtle gradient behind stars */
+            background: radial-gradient(circle at 50% 50%, #111130 0%, #000000 100%);
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(3, 3, 5, 0.7);
+            backdrop-filter: var(--glass);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .logo span {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* --- Layout --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 100px 0;
+        }
+
+        /* --- Hero Section --- */
+        #home {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-top: 80px;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: center;
+            gap: 4rem;
+        }
+
+        .hero-text h2 {
+            font-size: 1rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .hero-text h2::before {
+            content: '';
+            width: 30px;
+            height: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .hero-text h1 {
+            font-size: 4.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Text Gradient for Name */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 50%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 550px;
+            border-left: 2px solid var(--card-border);
+            padding-left: 1.5rem;
+            text-align: justify;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.9rem 2.2rem;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .social-icons a {
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            margin-right: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .social-icons a:hover {
+            color: var(--accent);
+            transform: translateY(-3px);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .hero-image-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-img-box {
+            width: 350px;
+            height: 350px;
+            /* Hexagon clip-path */
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+            background: #222;
+        }
+
+        .hero-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-color: #0b0b15;
+        }
+
+        .hero-decoration {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            left: 0;
+            margin: auto;
+            width: 370px;
+            height: 370px;
+            border: 1px solid var(--accent);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            z-index: 0;
+            opacity: 0.4;
+            animation: spin 20s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Skills --- */
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .section-title span {
+            color: var(--accent);
+            text-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .skill-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2rem;
+            border-radius: 4px;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Sci-fi corners */
+        .skill-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 20px; height: 20px;
+            border-top: 2px solid var(--accent);
+            border-left: 2px solid var(--accent);
+            opacity: 0.5;
+        }
+        .skill-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0; width: 20px; height: 20px;
+            border-bottom: 2px solid var(--accent);
+            border-right: 2px solid var(--accent);
+            opacity: 0.5;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+        }
+
+        .skill-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .skill-header i {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .tag {
+            background: rgba(0, 229, 255, 0.1);
+            padding: 0.4rem 1rem;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 0;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+        }
+
+        /* --- Projects --- */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border-color: var(--accent);
+        }
+
+        .project-content {
+            padding: 2rem;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .folder-icon {
+            color: var(--accent);
+            font-size: 2rem;
+            filter: drop-shadow(0 0 5px var(--accent-glow));
+        }
+
+        .external-link {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+
+        .external-link:hover {
+            color: var(--accent);
+        }
+
+        .project-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .project-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Education & Certs --- */
+        .timeline-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .timeline-column h3 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 1px solid var(--card-border);
+            margin-bottom: 2.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 5px;
+            width: 9px;
+            height: 9px;
+            background: #000;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .timeline-item h4 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-item .place {
+            color: var(--accent);
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .timeline-item .date {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-family: monospace;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: #000;
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid var(--card-border);
+        }
+        
+        footer p {
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 900px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-text h1 {
+                font-size: 3rem;
+            }
+
+            .hero-text h2 {
+                justify-content: center;
+            }
+
+            .hero-text p {
+                margin: 0 auto 2.5rem auto;
+                border-left: none;
+                padding-left: 0;
+            }
+
+            .btn-group {
+                justify-content: center;
+            }
+
+            .hero-image-container {
+                margin-top: 3rem;
+            }
+            
+            .timeline-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Three.js Background -->
+    <div id="canvas-container"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Portfolio<span>.</span></div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Projects</a>
+            <a href="#education">Education</a>
+            <a href="mailto:sushantchaturvedi537@gmail.com">Contact</a>
+        </div>
+        <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        
+        <!-- Hero Section -->
+        <section id="home">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h2>Welcome to my Portfolio</h2>
+                    <h1>Hello, I'm <br><span class="gradient-text">Sushant Chaturvedi</span></h1>
+                    <p>B.Tech CSE (AI/ML) student with strong programming and problem-solving skills, passionate about applying AI/ML concepts to real-world projects and collaborative development. I am eager to contribute to innovative software solutions.</p>
+                    
+                    <div class="btn-group">
+                        <a href="#projects" class="btn btn-primary">View Projects</a>
+                        <div class="social-icons">
+                            <a href="https://github.com/Sushanty6767" target="_blank"><i class="fab fa-github"></i></a>
+                            <a href="https://www.linkedin.com/in/sushant-chaturvedi-a2a439302/" target="_blank"><i class="fab fa-linkedin"></i></a>
+                            <a href="mailto:sushantchaturvedi537@gmail.com"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-image-container">
+                    <div class="hero-img-box">
+                        <!-- REPLACE THIS SRC WITH YOUR ACTUAL IMAGE FILE NAME -->
+                        <img src="WhatsApp Image 2026-01-03 at 1.55.34 PM.jpeg" alt="Sushant Chaturvedi" id="profile-img">
+                    </div>
+                    <!-- Spinning HUD Ring -->
+                    <div class="hero-decoration"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills">
+            <h2 class="section-title">Technical <span>Skills</span></h2>
+            <div class="skills-grid">
+                <!-- Programming -->
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <i class="fas fa-code"></i>
+                        <h3>Languages</h3>
+                    </div>
+                    <div class="skill-tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">Java</span>
+                        <span class="tag">C Programming</span>
+                        <span class="tag">Data Structures & Algo</span>
+                    </div>
+                </div>
+                
+                <!-- AI/ML -->
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <i class="fas fa-brain"></i>
+                        <h3>AI & Machine Learning</h3>
+                    </div>
+                    <div class="skill-tags">
+                        <span class="tag">NumPy</span>
+                        <span class="tag">Pandas</span>
+                        <span class="tag">SciPy</span>
+                        <span class="tag">Matplotlib</span>
+                        <span class="tag">Prompt Engineering</span>
+                    </div>
+                </div>
+
+                <!-- Web & Tools -->
+                <div class="skill-card">
+                    <div class="skill-header">
+                        <i class="fas fa-terminal"></i>
+                        <h3>Development Tools</h3>
+                    </div>
+                    <div class="skill-tags">
+                        <span class="tag">MySQL</span>
+                        <span class="tag">JDBC</span>
+                        <span class="tag">Git & GitHub</span>
+                        <span class="tag">VS Code</span>
+                        <span class="tag">Jupyter Notebook</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects">
+            <h2 class="section-title">Key <span>Projects</span></h2>
+            <div class="projects-grid">
+                
+                <!-- Project 1 -->
+                <div class="project-card">
+                    <div class="project-content">
+                        <div class="project-header">
+                            <i class="far fa-folder folder-icon"></i>
+                            <a href="https://github.com/Sushanty6767/Travel-and-Tourism-Management" target="_blank" class="external-link">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                        <h3 class="project-title">Travel & Tourism Management System</h3>
+                        <p class="project-desc">A comprehensive desktop application designed to streamline travel bookings and tourism management. Built using Java Swing for the interface and MySQL for robust data handling.</p>
+                        <div class="skill-tags">
+                            <span class="tag">Java</span>
+                            <span class="tag">Swing</span>
+                            <span class="tag">MySQL</span>
+                            <span class="tag">JDBC</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-card">
+                    <div class="project-content">
+                        <div class="project-header">
+                            <i class="far fa-folder folder-icon"></i>
+                            <a href="https://github.com/Sushanty6767/KarmaKind-Civic-Sense-Tracker" target="_blank" class="external-link">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                        <h3 class="project-title">KarmaKind Civic-Sense Tracker</h3>
+                        <p class="project-desc">An innovative tracking system focused on promoting civic awareness. It tracks community engagement metrics to foster a stronger sense of civic responsibility.</p>
+                        <div class="skill-tags">
+                            <span class="tag">Java</span>
+                            <span class="tag">MySQL</span>
+                            <span class="tag">Civic Tech</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Education & Certs -->
+        <section id="education">
+            <h2 class="section-title">Education & <span>Certifications</span></h2>
+            <div class="timeline-section">
+                
+                <!-- Education Column -->
+                <div class="timeline-column">
+                    <h3><i class="fas fa-graduation-cap" style="color:var(--accent)"></i> Education</h3>
+                    
+                    <div class="timeline-item">
+                        <h4>B.Tech in Computer Science & Engineering (AI/ML)</h4>
+                        <p class="place">Galgotias University, Greater Noida</p>
+                        <p class="date">2024 — 2028</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>Intermediate (Class 12), CBSE</h4>
+                        <p class="place">Sunbeam Academy Samneghat, Varanasi</p>
+                        <p class="date">Completed June 2024</p>
+                    </div>
+                </div>
+
+                <!-- Certs Column -->
+                <div class="timeline-column">
+                    <h3><i class="fas fa-certificate" style="color:var(--accent)"></i> Certifications</h3>
+                    
+                    <div class="timeline-item">
+                        <h4>Java for Beginners</h4>
+                        <p class="place">GUVI</p>
+                        <p class="date">May 2025</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>Object-Oriented Programming</h4>
+                        <p class="place">GUVI</p>
+                        <p class="date">May 2025</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>C Programming</h4>
+                        <p class="place">GUVI</p>
+                        <p class="date">Jan 2025</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4>Computational Thinking</h4>
+                        <p class="place">GUVI</p>
+                        <p class="date">Jan 2025</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Sushant Chaturvedi. All rights reserved.</p>
+            <div style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);">
+                <i href = mailto:sushantchaturvedi537@gmial.com class="fas fa-envelope"></i> sushantchaturvedi537@gmail.com | 
+                <i class="fas fa-phone"></i> +91 8004169783
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // --- THREE.JS STARFIELD ANIMATION ---
+        const initThreeJS = () => {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            
+            // Fog for depth
+            scene.fog = new THREE.FogExp2(0x000000, 0.002);
+            
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 50;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Create Stars
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsCount = 3000;
+            const posArray = new Float32Array(starsCount * 3);
+            const sizesArray = new Float32Array(starsCount);
+
+            for(let i = 0; i < starsCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 200; // Wide spread
+                if(i % 3 === 0) {
+                     sizesArray[i/3] = Math.random(); // Random sizes
+                }
+            }
+
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            starsGeometry.setAttribute('size', new THREE.BufferAttribute(sizesArray, 1));
+
+            // Custom shader material for better looking stars could be used, but PointsMaterial is faster for this demo
+            const starsMaterial = new THREE.PointsMaterial({
+                size: 0.2,
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.8,
+                sizeAttenuation: true
+            });
+
+            // Create Star System
+            const starSystem = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(starSystem);
+
+            // Interaction
+            let mouseX = 0;
+            let mouseY = 0;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = event.clientX / window.innerWidth - 0.5;
+                mouseY = event.clientY / window.innerHeight - 0.5;
+            });
+
+            // Animation Loop
+            const animate = () => {
+                // Rotate the whole star system slowly
+                starSystem.rotation.y += 0.0005; 
+                starSystem.rotation.x += 0.0002;
+
+                // Mouse interaction effect
+                starSystem.rotation.y += mouseX * 0.001;
+                starSystem.rotation.x += mouseY * 0.001;
+
+                renderer.render(scene, camera);
+                window.requestAnimationFrame(animate);
+            };
+
+            animate();
+
+            // Resize handler
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        // Initialize Three.js
+        initThreeJS();
+
+        // --- MOBILE MENU TOGGLE ---
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuBtn.addEventListener('click', () => {
+            const isFlex = navLinks.style.display === 'flex';
+            navLinks.style.display = isFlex ? 'none' : 'flex';
+            if (!isFlex) {
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '70px';
+                navLinks.style.right = '0';
+                navLinks.style.background = 'rgba(3, 3, 5, 0.95)';
+                navLinks.style.width = '100%';
+                navLinks.style.padding = '2rem';
+                navLinks.style.borderBottom = '1px solid var(--accent)';
+                navLinks.style.backdropFilter = 'blur(10px)';
+            }
+        });
+
+        // --- SMOOTH SCROLL ---
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                navLinks.style.display = ''; // Close menu on click
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
