@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type PointerEvent } from "
 import { motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { ArrowUpRight, Github, Linkedin, Mail, Menu, Phone, Plus, RotateCcw, Smartphone, X } from "lucide-react";
 import character from "@/assets/sushant-3d.png";
-import { certifications, navItems, projects, skillGroups } from "@/data/portfolio";
+import { certifications, GOOGLE_FORM_URL, navItems, projects, skillGroups } from "@/data/portfolio";
 import { Button } from "@/components/ui/button";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -292,8 +292,10 @@ function Work() {
 function Contact() {
   type FormErrors = { name?: string; email?: string; message?: string };
   const [errors, setErrors] = useState<FormErrors>({});
+  const [submitted, setSubmitted] = useState(false);
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setSubmitted(false);
     const form = new FormData(event.currentTarget);
     const name = String(form.get("name") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
@@ -301,9 +303,16 @@ function Contact() {
     const next: FormErrors = {};
     if (!name) next.name = "Please enter your name.";
     if (!/^\S+@\S+\.\S+$/.test(email)) next.email = "Please enter a valid email.";
-    if (message.length < 10) next.message = "Please add at least 10 characters.";
+    if (!message) {
+      next.message = "Please enter a message.";
+    } else if (message.length < 10) {
+      next.message = "Please add at least 10 characters.";
+    }
     setErrors(next);
-    if (Object.keys(next).length === 0) window.location.href = `mailto:sushantchaturvedi537@gmail.com?subject=${encodeURIComponent(`Portfolio message from ${name}`)}&body=${encodeURIComponent(`${message}\n\nFrom: ${name} (${email})`)}`;
+    if (Object.keys(next).length === 0) {
+      setSubmitted(true);
+      window.open(GOOGLE_FORM_URL, "_blank", "noopener,noreferrer");
+    }
   };
   return (
     <section id="contact" className="contact wrap">
@@ -321,6 +330,7 @@ function Contact() {
             <label>Name<input name="name" placeholder="Your name" aria-invalid={Boolean(errors.name)} />{errors.name && <small>{errors.name}</small>}</label>
             <label>Email<input name="email" type="email" placeholder="you@example.com" aria-invalid={Boolean(errors.email)} />{errors.email && <small>{errors.email}</small>}</label>
             <label>Message<textarea name="message" rows={4} placeholder="Tell me about your idea" aria-invalid={Boolean(errors.message)} />{errors.message && <small>{errors.message}</small>}</label>
+            {submitted && <p style={{ color: "var(--primary)", fontSize: "0.85rem", margin: 0 }}>Please complete the contact form to send your message.</p>}
             <button type="submit" className="send">Send message <ArrowUpRight /></button>
           </form>
         </Reveal>

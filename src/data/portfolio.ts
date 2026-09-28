@@ -79,3 +79,7 @@ export const certifications = [
 ] as const;
 
 export const navItems = ["Home", "About", "Skills", "Projects", "Certifications", "Contact"];
+
+/** Google Form URL for portfolio contact inquiries. Change this to update the form destination. */
+export const GOOGLE_FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLScnc-EuKk3F0m35MOfXpCrBljhhTCP8Mt-4sdAEBIt17qaIaQ/viewform?usp=header";
